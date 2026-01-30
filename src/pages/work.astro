@@ -508,21 +508,29 @@ const decades = Object.keys(pubsByDecade).sort().reverse();
     const tabs = document.querySelectorAll('.tab-btn');
     const contents = document.querySelectorAll('.tab-content');
     
+    // Function to activate a tab
+    const activateTab = (tabName) => {
+      tabs.forEach(t => {
+        t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+      });
+      contents.forEach(c => {
+        c.classList.toggle('active', c.id === tabName);
+      });
+    };
+    
+    // Check URL hash on page load
+    const hash = window.location.hash.slice(1); // Remove the #
+    if (hash && ['projects', 'publications', 'media'].includes(hash)) {
+      activateTab(hash);
+    }
+    
+    // Tab click handling
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const target = tab.getAttribute('data-tab');
-        
-        // Update tabs
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        // Update content
-        contents.forEach(c => {
-          c.classList.remove('active');
-          if (c.id === target) {
-            c.classList.add('active');
-          }
-        });
+        activateTab(target);
+        // Update URL hash without scrolling
+        history.replaceState(null, null, `#${target}`);
       });
     });
   });
