@@ -28,6 +28,7 @@ jobs:
         uses: withastro/action@v2
         with:
           path: ${{ env.BUILD_PATH }}
+          package-manager: npm
 
   deploy:
     name: Deploy
