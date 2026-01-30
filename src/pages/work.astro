@@ -24,7 +24,9 @@ const publications = await fetchFromSanity(
 
 const media = await fetchFromSanity(
   `*[_type == "media"]{
-    _id, title, outlet, date, url, mediaType, description,
+    _id, title, outlet, date, description,
+    "url": link,
+    "mediaType": type,
     "imageUrl": image.asset->url
   }`,
   []
@@ -154,23 +156,40 @@ const decades = Object.keys(pubsByDecade).sort().reverse();
   <section id="media" class="section tab-content">
     <div class="container">
       <div class="grid-3">
-        {(media || []).map((item) => (
-          <div class="media-card">
-            <div class="media-icon">
-              {item?.mediaType === 'podcast' ? '🎙️' : 
-               item?.mediaType === 'video' ? '🎬' : 
-               item?.mediaType === 'article' ? '📰' : '📺'}
-            </div>
-            <h3 class="media-title">{item?.title || 'Untitled'}</h3>
-            {item?.outlet && <p class="media-outlet">{item.outlet}</p>}
-            {item?.description && <p class="media-desc">{truncateText(item.description, 100)}</p>}
-            {item?.url && (
-              <a href={item.url} class="media-link" target="_blank" rel="noopener">
+        {(media || []).map((item) => {
+          const mediaUrl = item?.url;
+          return mediaUrl ? (
+            <a
+              href={mediaUrl}
+              class="media-card clickable"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="media-icon">
+                {item?.mediaType === 'podcast' ? '🎙️' :
+                 item?.mediaType === 'video' ? '🎬' :
+                 item?.mediaType === 'article' ? '📰' : '📺'}
+              </div>
+              <h3 class="media-title">{item?.title || 'Untitled'}</h3>
+              {item?.outlet && <p class="media-outlet">{item.outlet}</p>}
+              {item?.description && <p class="media-desc">{truncateText(item.description, 100)}</p>}
+              <span class="media-link">
                 Watch/Listen →
-              </a>
-            )}
-          </div>
-        ))}
+              </span>
+            </a>
+          ) : (
+            <div class="media-card">
+              <div class="media-icon">
+                {item?.mediaType === 'podcast' ? '🎙️' :
+                 item?.mediaType === 'video' ? '🎬' :
+                 item?.mediaType === 'article' ? '📰' : '📺'}
+              </div>
+              <h3 class="media-title">{item?.title || 'Untitled'}</h3>
+              {item?.outlet && <p class="media-outlet">{item.outlet}</p>}
+              {item?.description && <p class="media-desc">{truncateText(item.description, 100)}</p>}
+            </div>
+          );
+        })}
       </div>
       {(media?.length ?? 0) === 0 && (
         <p class="empty-state">Media appearances are being added. Check back soon!</p>
@@ -423,10 +442,22 @@ const decades = Object.keys(pubsByDecade).sort().reverse();
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
     transition: var(--transition);
   }
-  
+
   .media-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .media-card.clickable {
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+  }
+
+  .media-card.clickable:hover .media-link {
+    text-decoration: underline;
   }
   
   .media-icon {
