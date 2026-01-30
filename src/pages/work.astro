@@ -1,0 +1,456 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fetchFromSanity, truncateText, formatYear } from '../lib/sanity.js';
+
+const base = import.meta.env.BASE_URL || '';
+
+// Fetch all data with defensive patterns
+const projects = await fetchFromSanity(
+  `*[_type == "project"]{
+    _id, title, description, status, year, url, themes,
+    "slug": slug.current,
+    "imageUrl": mainImage.asset->url
+  }`,
+  []
+) || [];
+
+const publications = await fetchFromSanity(
+  `*[_type == "publication"] | order(year desc){
+    _id, title, year, publicationType, doi, url, abstract, themes,
+    "slug": slug.current
+  }`,
+  []
+) || [];
+
+const media = await fetchFromSanity(
+  `*[_type == "media"]{
+    _id, title, outlet, date, url, mediaType, description,
+    "imageUrl": image.asset->url
+  }`,
+  []
+) || [];
+
+// Filter out projects with malformed titles (more than 100 chars likely indicates data issue)
+const validProjects = (projects || []).filter(p => (p?.title?.length ?? 0) < 100);
+
+// Group publications by decade
+const pubsByDecade = (publications || []).reduce((acc, pub) => {
+  const year = pub?.year;
+  if (typeof year !== 'number') {
+    acc['Other'] = acc['Other'] || [];
+    acc['Other'].push(pub);
+  } else {
+    const decade = Math.floor(year / 10) * 10 + 's';
+    acc[decade] = acc[decade] || [];
+    acc[decade].push(pub);
+  }
+  return acc;
+}, {} as Record<string, any[]>);
+
+const decades = Object.keys(pubsByDecade).sort().reverse();
+---
+
+<Layout title="Work & Impact - Paul Chatterton">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1 class="page-title">Work & <span class="text-accent">Impact</span></h1>
+      <p class="page-desc">Three decades of research, projects, and public engagement working towards sustainable, just, and resilient communities.</p>
+    </div>
+  </section>
+
+  <!-- Navigation Tabs -->
+  <div class="tab-nav">
+    <div class="container">
+      <button class="tab-btn active" data-tab="projects">Projects ({validProjects?.length ?? 0})</button>
+      <button class="tab-btn" data-tab="publications">Publications ({publications?.length ?? 0})</button>
+      <button class="tab-btn" data-tab="media">Media ({media?.length ?? 0})</button>
+    </div>
+  </div>
+
+  <!-- Projects Section -->
+  <section id="projects" class="section tab-content active">
+    <div class="container">
+      <div class="grid-3">
+        {(validProjects || []).map((project) => (
+          <div class="project-card">
+            <div class="project-icon">🎯</div>
+            <h3 class="project-title">{project?.title || 'Untitled Project'}</h3>
+            <p class="project-desc">{truncateText(project?.description || '', 150) || 'Project details coming soon.'}</p>
+            {project?.url && (
+              <a href={project.url} class="project-link" target="_blank" rel="noopener">
+                Learn more →
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+      {(validProjects?.length ?? 0) === 0 && (
+        <p class="empty-state">Projects are being added. Check back soon!</p>
+      )}
+    </div>
+  </section>
+
+  <!-- Publications Section -->
+  <section id="publications" class="section tab-content">
+    <div class="container">
+      {decades.map((decade) => (
+        <div class="decade-group">
+          <h3 class="decade-title">{decade}</h3>
+          <div class="pub-grid">
+            {(pubsByDecade[decade] || []).map((pub: any) => (
+              <div class="pub-card">
+                <div class="pub-year-badge">{pub?.year || '—'}</div>
+                <h4 class="pub-title">{pub?.title || 'Untitled'}</h4>
+                {pub?.publicationType && <span class="tag">{pub.publicationType}</span>}
+                {pub?.abstract && (
+                  <p class="pub-abstract">{truncateText(pub.abstract, 120)}</p>
+                )}
+                <div class="pub-links">
+                  {pub?.doi && (
+                    <a href={pub.doi.startsWith('http') ? pub.doi : `https://doi.org/${pub.doi}`} target="_blank" rel="noopener" class="pub-link">
+                      DOI
+                    </a>
+                  )}
+                  {pub?.url && (
+                    <a href={pub.url} target="_blank" rel="noopener" class="pub-link">
+                      View
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      {(publications?.length ?? 0) === 0 && (
+        <p class="empty-state">Publications are being added. Check back soon!</p>
+      )}
+    </div>
+  </section>
+
+  <!-- Media Section -->
+  <section id="media" class="section tab-content">
+    <div class="container">
+      <div class="grid-3">
+        {(media || []).map((item) => (
+          <div class="media-card">
+            <div class="media-icon">
+              {item?.mediaType === 'podcast' ? '🎙️' : 
+               item?.mediaType === 'video' ? '🎬' : 
+               item?.mediaType === 'article' ? '📰' : '📺'}
+            </div>
+            <h3 class="media-title">{item?.title || 'Untitled'}</h3>
+            {item?.outlet && <p class="media-outlet">{item.outlet}</p>}
+            {item?.description && <p class="media-desc">{truncateText(item.description, 100)}</p>}
+            {item?.url && (
+              <a href={item.url} class="media-link" target="_blank" rel="noopener">
+                Watch/Listen →
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+      {(media?.length ?? 0) === 0 && (
+        <p class="empty-state">Media appearances are being added. Check back soon!</p>
+      )}
+    </div>
+  </section>
+
+  <!-- Contact CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Want to Collaborate?</h2>
+        <p>I'm always looking for new partnerships on research, policy, and activist projects.</p>
+        <a href={`${base}/collaborate`} class="btn btn-primary">Get in Touch</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-header {
+    background: linear-gradient(135deg, var(--green-light) 0%, var(--white) 100%);
+    padding: 100px 0 60px;
+    text-align: center;
+  }
+  
+  .page-title {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    margin-bottom: 20px;
+  }
+  
+  .page-desc {
+    font-size: 1.15rem;
+    color: var(--gray-600);
+    max-width: 650px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+  
+  /* Tab Navigation */
+  .tab-nav {
+    position: sticky;
+    top: 60px;
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    z-index: 50;
+  }
+  
+  .tab-nav .container {
+    display: flex;
+    gap: 10px;
+    padding: 15px 20px;
+    overflow-x: auto;
+  }
+  
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: var(--gray-100);
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+  }
+  
+  .tab-btn:hover {
+    background: var(--green-light);
+  }
+  
+  .tab-btn.active {
+    background: var(--green-primary);
+    color: var(--white);
+  }
+  
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+  }
+  
+  /* Projects */
+  .project-card {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    transition: var(--transition);
+  }
+  
+  .project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .project-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .project-title {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    color: var(--gray-900);
+  }
+  
+  .project-desc {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+  
+  .project-link {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  /* Publications */
+  .decade-group {
+    margin-bottom: 50px;
+  }
+  
+  .decade-title {
+    font-size: 1.8rem;
+    color: var(--green-primary);
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--green-light);
+  }
+  
+  .pub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+  }
+  
+  .pub-card {
+    background: var(--gray-50);
+    padding: 25px;
+    border-radius: 12px;
+    transition: var(--transition);
+  }
+  
+  .pub-card:hover {
+    background: var(--white);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .pub-year-badge {
+    display: inline-block;
+    background: var(--green-primary);
+    color: var(--white);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .pub-title {
+    font-size: 1.05rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  
+  .pub-abstract {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  
+  .pub-links {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .pub-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    background: var(--green-light);
+    border-radius: 5px;
+  }
+  
+  /* Media */
+  .media-card {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    transition: var(--transition);
+  }
+  
+  .media-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .media-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .media-title {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: var(--gray-900);
+  }
+  
+  .media-outlet {
+    font-size: 0.9rem;
+    color: var(--green-primary);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  
+  .media-desc {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    line-height: 1.5;
+    margin-bottom: 15px;
+  }
+  
+  .media-link {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-500);
+    font-size: 1.1rem;
+  }
+  
+  /* CTA */
+  .cta-section {
+    background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
+    padding: 80px 0;
+    margin-top: 60px;
+  }
+  
+  .cta-content {
+    text-align: center;
+  }
+  
+  .cta-content h2 {
+    color: var(--white);
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+  }
+  
+  .cta-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+  }
+  
+  .cta-content .btn-primary {
+    background: var(--white);
+    color: var(--green-primary);
+  }
+  
+  @media (max-width: 500px) {
+    .pub-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Tab switching functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tab-btn');
+    const contents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-tab');
+        
+        // Update tabs
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Update content
+        contents.forEach(c => {
+          c.classList.remove('active');
+          if (c.id === target) {
+            c.classList.add('active');
+          }
+        });
+      });
+    });
+  });
+</script>

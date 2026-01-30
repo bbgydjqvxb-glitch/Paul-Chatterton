@@ -1,78 +1,378 @@
 ---
-import { createClient } from '@sanity/client';
+import Layout from '../layouts/Layout.astro';
+import { fetchFromSanity, truncateText } from '../lib/sanity.js';
 
-const client = createClient({
-  projectId: 'ybrfxq5h',
-  dataset: 'production',
-  useCdn: true,
-  apiVersion: '2024-01-01',
-});
+const base = import.meta.env.BASE_URL || '';
 
-// Fetch author data from Sanity
-const author = await client.fetch(`*[_type == "author"][0]`);
+// Fetch data with defensive patterns
+const projects = await fetchFromSanity(
+  `*[_type == "project"] | order(_createdAt desc)[0..8]{
+    _id, title, description,
+    "slug": slug.current,
+    "imageUrl": mainImage.asset->url
+  }`,
+  []
+) || [];
+
+const publications = await fetchFromSanity(
+  `*[_type == "publication"] | order(year desc)[0..5]{
+    _id, title, year, publicationType,
+    "slug": slug.current
+  }`,
+  []
+) || [];
+
+const media = await fetchFromSanity(
+  `*[_type == "media"][0..5]{
+    _id, title, outlet, url, mediaType
+  }`,
+  []
+) || [];
+
+// Featured projects - manually selected with fallback content
+const featuredProjects = [
+  {
+    title: 'LILAC Co-Housing',
+    description: 'A pioneering co-housing community of 20 households in Leeds using straw-bale construction and mutual home ownership. A living example of how we can build homes differently.',
+    icon: '🏠'
+  },
+  {
+    title: 'Climate Action Leeds',
+    description: 'City-wide mobilization through a hub and spoke model, empowering communities to reach zero carbon by the 2030s. Grassroots climate action at scale.',
+    icon: '🌍'
+  },
+  {
+    title: 'Remaking Places',
+    description: 'An interdisciplinary research network and creative toolkit helping communities reimagine and transform their neighbourhoods for a sustainable future.',
+    icon: '🗺️'
+  }
+];
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{author?.name || 'Paul Chatterton'} - Portfolio</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background: #f9f9f9;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      background: white;
-      min-height: 100vh;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-      color: #1a1a1a;
-    }
-    .subtitle {
-      font-size: 1.2rem;
-      color: #666;
-      margin-bottom: 30px;
-    }
-    .bio {
-      font-size: 1.1rem;
-      line-height: 1.8;
-      color: #555;
-      margin-bottom: 40px;
-    }
-    .footer {
-      margin-top: 60px;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
+<Layout title="Paul Chatterton - Demanding the Impossible">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+      <div class="hero-text">
+        <p class="hero-tagline">Academic • Activist • Author</p>
+        <h1 class="hero-title">Demand the <span class="text-accent">Impossible</span></h1>
+        <p class="hero-description">
+          After three decades of working at the intersection of research and action, I'm seeking collaborators for high-impact projects that can help communities build sustainable, just, and resilient futures.
+        </p>
+        <div class="hero-cta">
+          <a href={`${base}/collaborate`} class="btn btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"></path></svg>
+            Let's Collaborate
+          </a>
+          <a href={`${base}/work`} class="btn btn-outline">
+            View My Work
+          </a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src={`${base}/paul-chatterton-headshot.jpg`} alt="Professor Paul Chatterton" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Projects -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Transformative Projects</h2>
+        <p class="section-subtitle">Real-world initiatives that demonstrate another way is possible</p>
+      </div>
+      <div class="grid-3">
+        {featuredProjects.map((project) => (
+          <div class="featured-card">
+            <span class="featured-icon">{project.icon}</span>
+            <h3 class="featured-title">{project.title}</h3>
+            <p class="featured-desc">{project.description}</p>
+          </div>
+        ))}
+      </div>
+      <div class="section-cta">
+        <a href={`${base}/work`} class="btn btn-outline">View All Projects →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest Publications -->
+  {(publications?.length ?? 0) > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Latest Publications</h2>
+          <p class="section-subtitle">Research that bridges academia and activism</p>
+        </div>
+        <div class="pub-list">
+          {(publications || []).slice(0, 5).map((pub) => (
+            <div class="pub-item">
+              <div class="pub-year">{pub?.year || '—'}</div>
+              <div class="pub-content">
+                <h3 class="pub-title">{pub?.title || 'Untitled'}</h3>
+                {pub?.publicationType && <span class="tag">{pub.publicationType}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div class="section-cta">
+          <a href={`${base}/work`} class="btn btn-outline">View All Publications →</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Media Highlights -->
+  {(media?.length ?? 0) > 0 && (
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Media & Talks</h2>
+          <p class="section-subtitle">Sharing ideas beyond the academy</p>
+        </div>
+        <div class="grid-3">
+          {(media || []).slice(0, 6).map((item) => (
+            <div class="card">
+              <div class="card-body">
+                <span class="media-icon">🎙️</span>
+                <h3 class="card-title">{item?.title || 'Untitled'}</h3>
+                {item?.outlet && <p class="card-text">{item.outlet}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div class="section-cta">
+          <a href={`${base}/work`} class="btn btn-outline">View All Media →</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Call to Action -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Ready to Make Change?</h2>
+        <p>Whether you're a researcher, policy maker, journalist, or activist, I'm looking for collaborators who want to make a real difference.</p>
+        <a href={`${base}/collaborate`} class="btn btn-primary">
+          Start a Conversation
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* Hero */
+  .hero {
+    position: relative;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--green-light) 0%, var(--white) 50%, var(--gray-50) 100%);
+    z-index: -1;
+  }
+  
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 60px;
+    align-items: center;
+    padding: 80px 20px;
+  }
+  
+  .hero-tagline {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--green-primary);
+    margin-bottom: 15px;
+  }
+  
+  .hero-title {
+    font-size: clamp(2.8rem, 7vw, 4.5rem);
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: 25px;
+    line-height: 1.1;
+  }
+  
+  .hero-description {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: var(--gray-600);
+    margin-bottom: 35px;
+    max-width: 550px;
+  }
+  
+  .hero-cta {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  
+  .hero-image {
+    position: relative;
+  }
+  
+  .hero-image img {
+    width: 100%;
+    max-width: 450px;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  }
+  
+  @media (max-width: 900px) {
+    .hero-content {
+      grid-template-columns: 1fr;
       text-align: center;
-      color: #999;
-      font-size: 0.9rem;
+      padding: 60px 20px;
     }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>{author?.name || 'Paul Chatterton'}</h1>
-    <p class="subtitle">{author?.title || 'Academic & Researcher'}</p>
-    <div class="bio">
-      {author?.bio || 'Welcome to the portfolio.'}
-    </div>
-    <div class="footer">
-      <p>Portfolio built with Astro + Sanity</p>
-    </div>
-  </div>
-</body>
-</html>
+    
+    .hero-description {
+      margin: 0 auto 35px;
+    }
+    
+    .hero-cta {
+      justify-content: center;
+    }
+    
+    .hero-image {
+      order: -1;
+    }
+    
+    .hero-image img {
+      max-width: 280px;
+      margin: 0 auto;
+    }
+  }
+  
+  /* Featured cards */
+  .featured-card {
+    background: var(--white);
+    padding: 40px 30px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    transition: var(--transition);
+  }
+  
+  .featured-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+  }
+  
+  .featured-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 20px;
+  }
+  
+  .featured-title {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: var(--gray-900);
+  }
+  
+  .featured-desc {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+  
+  .section-cta {
+    text-align: center;
+    margin-top: 40px;
+  }
+  
+  /* Publications list */
+  .pub-list {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .pub-item {
+    display: flex;
+    gap: 25px;
+    padding: 25px 0;
+    border-bottom: 1px solid var(--gray-200);
+    transition: var(--transition);
+  }
+  
+  .pub-item:hover {
+    background: var(--gray-50);
+    padding-left: 15px;
+    margin-left: -15px;
+    padding-right: 15px;
+    margin-right: -15px;
+    border-radius: 8px;
+  }
+  
+  .pub-year {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--green-primary);
+    min-width: 50px;
+  }
+  
+  .pub-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--gray-800);
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 8px;
+  }
+  
+  /* Media icons */
+  .media-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 15px;
+  }
+  
+  /* CTA Section */
+  .cta-section {
+    background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
+    padding: 100px 0;
+  }
+  
+  .cta-content {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+  
+  .cta-content h2 {
+    color: var(--white);
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    margin-bottom: 20px;
+  }
+  
+  .cta-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.15rem;
+    margin-bottom: 35px;
+    line-height: 1.7;
+  }
+  
+  .cta-content .btn-primary {
+    background: var(--white);
+    color: var(--green-primary);
+    font-size: 1.1rem;
+    padding: 15px 35px;
+  }
+  
+  .cta-content .btn-primary:hover {
+    background: var(--gray-100);
+    transform: translateY(-3px);
+  }
+</style>

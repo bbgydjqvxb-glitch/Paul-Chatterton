@@ -1,0 +1,436 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = 'Paul Chatterton - Demanding the Impossible',
+  description = 'Professor Paul Chatterton - Academic, activist, and author working on sustainable cities, housing justice, and climate action.'
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL || '';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content={description}>
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <style is:global>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --green-dark: #1a4d1a;
+      --green-primary: #2d5016;
+      --green-accent: #3d6b1f;
+      --green-light: #e8f5e8;
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-600: #525252;
+      --gray-800: #262626;
+      --gray-900: #171717;
+      --max-width: 1200px;
+      --transition: all 0.3s ease;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      color: var(--gray-800);
+      background: var(--white);
+    }
+    
+    h1, h2, h3, h4, h5 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    
+    a {
+      color: var(--green-primary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    a:hover {
+      color: var(--green-dark);
+    }
+    
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    
+    .header-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .site-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--green-primary);
+    }
+    
+    .site-nav {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .nav-link {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      transition: var(--transition);
+    }
+    
+    .nav-link:hover {
+      background: var(--green-light);
+      color: var(--green-primary);
+    }
+    
+    .nav-link.cta {
+      background: var(--green-primary);
+      color: var(--white);
+    }
+    
+    .nav-link.cta:hover {
+      background: var(--green-dark);
+    }
+    
+    /* Mobile nav */
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+    
+    @media (max-width: 768px) {
+      .mobile-toggle {
+        display: block;
+      }
+      
+      .site-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        padding: 20px;
+        flex-direction: column;
+        border-bottom: 1px solid var(--gray-200);
+      }
+      
+      .site-nav.open {
+        display: flex;
+      }
+    }
+    
+    /* Footer */
+    .site-footer {
+      background: var(--gray-900);
+      color: var(--gray-200);
+      padding: 60px 0 30px;
+      margin-top: 80px;
+    }
+    
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    @media (max-width: 768px) {
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .footer-about h3 {
+      color: var(--white);
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+    
+    .footer-about p {
+      color: var(--gray-400);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+    
+    .footer-links h4 {
+      color: var(--white);
+      font-size: 1rem;
+      margin-bottom: 15px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 8px;
+    }
+    
+    .footer-links a {
+      color: var(--gray-400);
+      font-size: 0.9rem;
+    }
+    
+    .footer-links a:hover {
+      color: var(--white);
+    }
+    
+    .footer-bottom {
+      padding-top: 30px;
+      border-top: 1px solid var(--gray-800);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--gray-500);
+    }
+    
+    /* Button styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      cursor: pointer;
+      border: none;
+    }
+    
+    .btn-primary {
+      background: var(--green-primary);
+      color: var(--white);
+    }
+    
+    .btn-primary:hover {
+      background: var(--green-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--green-primary);
+      color: var(--green-primary);
+    }
+    
+    .btn-outline:hover {
+      background: var(--green-primary);
+      color: var(--white);
+    }
+    
+    /* Section styles */
+    .section {
+      padding: 80px 0;
+    }
+    
+    .section-alt {
+      background: var(--gray-50);
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    
+    .section-title {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      color: var(--gray-900);
+      margin-bottom: 15px;
+    }
+    
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: var(--gray-600);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Card styles */
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: var(--transition);
+    }
+    
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .card-body {
+      padding: 24px;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+      color: var(--gray-900);
+    }
+    
+    .card-text {
+      color: var(--gray-600);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    
+    /* Grid layouts */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+    }
+    
+    @media (max-width: 500px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Accent text */
+    .text-accent {
+      color: var(--green-primary);
+    }
+    
+    /* Tag/badge */
+    .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--green-light);
+      color: var(--green-primary);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    /* Loading/placeholder */
+    .placeholder {
+      background: var(--gray-100);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-400);
+      font-size: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href={`${base}/`} class="site-logo">Paul Chatterton</a>
+      <button class="mobile-toggle" aria-label="Toggle menu" onclick="document.querySelector('.site-nav').classList.toggle('open')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <nav class="site-nav">
+        <a href={`${base}/`} class="nav-link">Home</a>
+        <a href={`${base}/work`} class="nav-link">Work & Impact</a>
+        <a href={`${base}/about`} class="nav-link">About</a>
+        <a href={`${base}/collaborate`} class="nav-link cta">Let's Collaborate</a>
+      </nav>
+    </div>
+  </header>
+  
+  <main>
+    <slot />
+  </main>
+  
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-content">
+        <div class="footer-about">
+          <h3>Demanding the Impossible</h3>
+          <p>Professor Paul Chatterton works at the intersection of academia and activism, helping communities build sustainable, just, and resilient futures.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Navigate</h4>
+          <ul>
+            <li><a href={`${base}/work`}>Work & Impact</a></li>
+            <li><a href={`${base}/about`}>About</a></li>
+            <li><a href={`${base}/collaborate`}>Collaborate</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Connect</h4>
+          <ul>
+            <li><a href="https://scholar.google.co.uk/citations?user=IPrGZy8AAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a></li>
+            <li><a href="https://environment.leeds.ac.uk/geography/staff/1015/professor-paul-chatterton" target="_blank" rel="noopener">University of Leeds</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; {new Date().getFullYear()} Paul Chatterton. Built with Astro.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

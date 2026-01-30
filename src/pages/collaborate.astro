@@ -1,0 +1,427 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const base = import.meta.env.BASE_URL || '';
+
+// Collaboration types
+const collaborators = [
+  {
+    title: 'Researchers & Academics',
+    icon: '🔬',
+    description: 'Looking to partner on transdisciplinary research, co-author papers, or develop new methodologies for engaged scholarship.',
+    examples: ['Joint research projects', 'Co-authored publications', 'PhD supervision', 'Research networks']
+  },
+  {
+    title: 'Policy Makers',
+    icon: '🏛️',
+    description: 'Interested in evidence-based approaches to urban sustainability, housing policy, or climate action at local or national level.',
+    examples: ['Policy consultation', 'Strategic advice', 'Evidence reviews', 'Briefings']
+  },
+  {
+    title: 'Journalists & Media',
+    icon: '📺',
+    description: 'Seeking expert commentary on sustainable cities, housing justice, climate action, or community-led development.',
+    examples: ['Expert interviews', 'Op-eds', 'Podcast appearances', 'Documentary input']
+  },
+  {
+    title: 'Activists & Communities',
+    icon: '✊',
+    description: 'Community groups and activists working on housing, climate, or urban transformation who want research support or partnership.',
+    examples: ['Action research', 'Workshops', 'Strategic support', 'Knowledge sharing']
+  }
+];
+---
+
+<Layout title="Collaborate - Paul Chatterton">
+  <!-- Hero -->
+  <section class="collab-hero">
+    <div class="container">
+      <h1>Let's <span class="text-accent">Collaborate</span></h1>
+      <p class="hero-desc">
+        After three decades of research and activism, I'm seeking partners for high-impact projects that can help communities build sustainable, just, and resilient futures.
+      </p>
+    </div>
+  </section>
+
+  <!-- Who Should Reach Out -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Who Should Reach Out?</h2>
+        <p class="section-subtitle">I'm particularly interested in working with...</p>
+      </div>
+      <div class="grid-2">
+        {collaborators.map((collab) => (
+          <div class="collab-card">
+            <span class="collab-icon">{collab.icon}</span>
+            <h3 class="collab-title">{collab.title}</h3>
+            <p class="collab-desc">{collab.description}</p>
+            <ul class="collab-examples">
+              {(collab.examples || []).map((ex) => (
+                <li>{ex}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Current Interests -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Current Interests</h2>
+        <p class="section-subtitle">Areas where I'm actively seeking collaboration</p>
+      </div>
+      <div class="interests-grid">
+        <div class="interest-item">
+          <span class="interest-icon">🏠</span>
+          <h3>Housing Justice</h3>
+          <p>Community-led housing, mutual home ownership, and alternatives to extractive landlordism.</p>
+        </div>
+        <div class="interest-item">
+          <span class="interest-icon">🌡️</span>
+          <h3>Climate Action</h3>
+          <p>Grassroots climate mobilization, just transitions, and community-scale net zero pathways.</p>
+        </div>
+        <div class="interest-item">
+          <span class="interest-icon">🌆</span>
+          <h3>Urban Futures</h3>
+          <p>15-minute neighbourhoods, car-free cities, and reimagining urban space for people and planet.</p>
+        </div>
+        <div class="interest-item">
+          <span class="interest-icon">🌍</span>
+          <h3>Global Solidarity</h3>
+          <p>International connections, particularly with Latin American movements and the Zapatistas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="section contact-section">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info">
+          <h2>Get in Touch</h2>
+          <p>I read every message and respond to serious inquiries about potential collaboration. Please be specific about what you're looking for.</p>
+          
+          <div class="contact-methods">
+            <a href="mailto:p.chatterton@leeds.ac.uk" class="contact-method">
+              <span class="method-icon">📧</span>
+              <span class="method-text">
+                <strong>Email</strong>
+                <span>p.chatterton@leeds.ac.uk</span>
+              </span>
+            </a>
+            <a href="https://environment.leeds.ac.uk/geography/staff/1015/professor-paul-chatterton" target="_blank" rel="noopener" class="contact-method">
+              <span class="method-icon">🎓</span>
+              <span class="method-text">
+                <strong>University Profile</strong>
+                <span>Leeds Geography Department</span>
+              </span>
+            </a>
+          </div>
+        </div>
+        
+        <div class="contact-form-wrapper">
+          <form class="contact-form" action="mailto:p.chatterton@leeds.ac.uk" method="post" enctype="text/plain">
+            <div class="form-group">
+              <label for="name">Your Name</label>
+              <input type="text" id="name" name="name" required placeholder="Jane Smith" />
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" required placeholder="jane@example.com" />
+            </div>
+            <div class="form-group">
+              <label for="type">I am a...</label>
+              <select id="type" name="type">
+                <option value="">Select one</option>
+                <option value="researcher">Researcher / Academic</option>
+                <option value="policy">Policy Maker</option>
+                <option value="media">Journalist / Media</option>
+                <option value="activist">Activist / Community Member</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="message">How can we work together?</label>
+              <textarea id="message" name="message" rows="5" required placeholder="Tell me about your project or idea..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">
+              Send Message
+            </button>
+            <p class="form-note">This will open your email client with a pre-filled message.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final-cta">
+    <div class="container">
+      <blockquote>
+        "Be realistic: demand the impossible."
+      </blockquote>
+      <p class="quote-attr">— Graffiti from Paris, May 1968</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .collab-hero {
+    background: linear-gradient(135deg, var(--green-light) 0%, var(--white) 100%);
+    padding: 100px 0 80px;
+    text-align: center;
+  }
+  
+  .collab-hero h1 {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    margin-bottom: 20px;
+  }
+  
+  .hero-desc {
+    font-size: 1.2rem;
+    color: var(--gray-600);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+  
+  /* Collaborator cards */
+  .collab-card {
+    background: var(--white);
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    transition: var(--transition);
+  }
+  
+  .collab-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .collab-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 15px;
+  }
+  
+  .collab-title {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    color: var(--gray-900);
+  }
+  
+  .collab-desc {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  
+  .collab-examples {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .collab-examples li {
+    background: var(--green-light);
+    color: var(--green-primary);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  /* Interests */
+  .interests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+  }
+  
+  .interest-item {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+  }
+  
+  .interest-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  }
+  
+  .interest-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 15px;
+  }
+  
+  .interest-item h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: var(--gray-900);
+  }
+  
+  .interest-item p {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  /* Contact */
+  .contact-section {
+    background: var(--gray-50);
+  }
+  
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 60px;
+    align-items: start;
+  }
+  
+  .contact-info h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+  
+  .contact-info > p {
+    color: var(--gray-600);
+    line-height: 1.7;
+    margin-bottom: 30px;
+  }
+  
+  .contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .contact-method {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: var(--white);
+    border-radius: 12px;
+    transition: var(--transition);
+  }
+  
+  .contact-method:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .method-icon {
+    font-size: 2rem;
+  }
+  
+  .method-text {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .method-text strong {
+    color: var(--gray-900);
+    font-weight: 600;
+  }
+  
+  .method-text span {
+    color: var(--gray-500);
+    font-size: 0.9rem;
+  }
+  
+  /* Form */
+  .contact-form-wrapper {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--gray-700);
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: var(--transition);
+    font-family: inherit;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--green-primary);
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  .btn-full {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .form-note {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--gray-500);
+    margin-top: 15px;
+  }
+  
+  @media (max-width: 800px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* Quote */
+  .final-cta {
+    background: var(--gray-900);
+    padding: 100px 0;
+    text-align: center;
+  }
+  
+  .final-cta blockquote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: var(--white);
+    font-style: italic;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    line-height: 1.4;
+  }
+  
+  .quote-attr {
+    color: var(--gray-400);
+    font-size: 1rem;
+  }
+</style>

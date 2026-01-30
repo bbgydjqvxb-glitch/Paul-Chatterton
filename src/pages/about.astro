@@ -1,0 +1,403 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fetchFromSanity } from '../lib/sanity.js';
+
+const base = import.meta.env.BASE_URL || '';
+
+// Fetch roles with defensive patterns
+const roles = await fetchFromSanity(
+  `*[_type == "role"]{
+    _id, title, organization, current, startYear, endYear
+  }`,
+  []
+) || [];
+
+// Filter out malformed roles (urls shouldn't be titles)
+const validRoles = (roles || []).filter((r: any) => !(r?.title?.startsWith('http')));
+---
+
+<Layout title="About - Paul Chatterton">
+  <!-- Hero -->
+  <section class="about-hero">
+    <div class="container hero-grid">
+      <div class="hero-image">
+        <img src={`${base}/paul-chatterton-headshot.jpg`} alt="Professor Paul Chatterton" />
+      </div>
+      <div class="hero-content">
+        <h1>About <span class="text-accent">Paul</span></h1>
+        <p class="hero-lead">
+          Professor of Urban Futures at the University of Leeds, working at the intersection of academia and activism to help communities build sustainable, just, and resilient futures.
+        </p>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-number">30+</span>
+            <span class="stat-label">Years Research</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">124+</span>
+            <span class="stat-label">Publications</span>
+          </div>
+          <div class="stat">
+            <span class="stat-number">9</span>
+            <span class="stat-label">Major Projects</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bio -->
+  <section class="section">
+    <div class="container">
+      <div class="bio-content">
+        <h2>Demanding the <span class="text-accent">Impossible</span></h2>
+        <p>
+          My work bridges the gap between academic research and real-world change. I believe that another world is not only possible—it's necessary. Through my research, writing, and community engagement, I help communities envision and create alternatives to business as usual.
+        </p>
+        <p>
+          From co-founding LILAC, the UK's first affordable eco co-housing community, to leading Climate Action Leeds, I've spent my career turning radical ideas into practical reality. My book "Unlocking Sustainable Cities" provides a code for urban activists, while "How to Save the City" offers an emergency guide for the transformations we need.
+        </p>
+        <p>
+          I work with communities, policy makers, and fellow researchers to develop actionable pathways towards zero-carbon, socially just futures. Whether it's through housing innovation, climate mobilization, or reimagining urban spaces, my approach always centres community agency and systemic change.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Philosophy -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Philosophy</h2>
+        <p class="section-subtitle">The principles that guide my work</p>
+      </div>
+      <div class="grid-3">
+        <div class="philosophy-card">
+          <span class="philosophy-icon">🌱</span>
+          <h3>Systems Change</h3>
+          <p>Individual actions matter, but we need systemic transformation. I work on the structures that shape our cities and communities.</p>
+        </div>
+        <div class="philosophy-card">
+          <span class="philosophy-icon">🤝</span>
+          <h3>Community Agency</h3>
+          <p>Real change comes from empowered communities. My role is to support, not lead—providing tools and knowledge for collective action.</p>
+        </div>
+        <div class="philosophy-card">
+          <span class="philosophy-icon">🔬</span>
+          <h3>Activist Research</h3>
+          <p>Academia should serve society. I practice engaged scholarship that generates knowledge through action and returns findings to communities.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roles -->
+  {(validRoles?.length ?? 0) > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Roles & Affiliations</h2>
+          <p class="section-subtitle">Current and past positions</p>
+        </div>
+        <div class="roles-grid">
+          {(validRoles || []).map((role: any) => (
+            <div class="role-card">
+              <h3 class="role-title">{role?.title || 'Role'}</h3>
+              {role?.organization && <p class="role-org">{role.organization}</p>}
+              {(role?.startYear || role?.endYear) && (
+                <p class="role-years">
+                  {role?.startYear || '?'} – {role?.current ? 'Present' : (role?.endYear || '?')}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Key roles as cards if no CMS data -->
+  {(validRoles?.length ?? 0) === 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Roles & Affiliations</h2>
+        </div>
+        <div class="roles-grid">
+          <div class="role-card">
+            <h3 class="role-title">Professor of Urban Futures</h3>
+            <p class="role-org">University of Leeds</p>
+          </div>
+          <div class="role-card">
+            <h3 class="role-title">Co-founder</h3>
+            <p class="role-org">LILAC Co-Housing</p>
+          </div>
+          <div class="role-card">
+            <h3 class="role-title">Co-founder</h3>
+            <p class="role-org">Climate Action Leeds</p>
+          </div>
+          <div class="role-card">
+            <h3 class="role-title">Chair</h3>
+            <p class="role-org">Kirkstall Valley Park</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Academic Links -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Academic Profiles</h2>
+      </div>
+      <div class="links-grid">
+        <a href="https://scholar.google.co.uk/citations?user=IPrGZy8AAAAJ&hl=en" target="_blank" rel="noopener" class="link-card">
+          <span class="link-icon">📚</span>
+          <span class="link-text">Google Scholar</span>
+        </a>
+        <a href="https://environment.leeds.ac.uk/geography/staff/1015/professor-paul-chatterton" target="_blank" rel="noopener" class="link-card">
+          <span class="link-icon">🎓</span>
+          <span class="link-text">University of Leeds</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Let's Work Together</h2>
+        <p>I'm always looking for collaborators who want to make a real difference in how we live, work, and organize our communities.</p>
+        <a href={`${base}/collaborate`} class="btn btn-primary">Start a Conversation</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .about-hero {
+    background: linear-gradient(135deg, var(--green-light) 0%, var(--white) 100%);
+    padding: 100px 0 80px;
+  }
+  
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 60px;
+    align-items: center;
+  }
+  
+  .hero-image img {
+    width: 100%;
+    max-width: 350px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  }
+  
+  .hero-content h1 {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    margin-bottom: 20px;
+  }
+  
+  .hero-lead {
+    font-size: 1.2rem;
+    color: var(--gray-600);
+    line-height: 1.8;
+    margin-bottom: 30px;
+  }
+  
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+  }
+  
+  .stat {
+    text-align: center;
+  }
+  
+  .stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--green-primary);
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+  }
+  
+  @media (max-width: 800px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    
+    .hero-image img {
+      margin: 0 auto;
+    }
+    
+    .hero-stats {
+      justify-content: center;
+    }
+  }
+  
+  /* Bio */
+  .bio-content {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .bio-content h2 {
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .bio-content p {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: var(--gray-700);
+    margin-bottom: 25px;
+  }
+  
+  /* Philosophy */
+  .philosophy-card {
+    background: var(--white);
+    padding: 40px 30px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    transition: var(--transition);
+  }
+  
+  .philosophy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .philosophy-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 20px;
+  }
+  
+  .philosophy-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    color: var(--gray-900);
+  }
+  
+  .philosophy-card p {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  
+  /* Roles */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .role-card {
+    background: var(--gray-50);
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 4px solid var(--green-primary);
+    transition: var(--transition);
+  }
+  
+  .role-card:hover {
+    background: var(--white);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .role-title {
+    font-size: 1.1rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 5px;
+  }
+  
+  .role-org {
+    color: var(--green-primary);
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  
+  .role-years {
+    color: var(--gray-500);
+    font-size: 0.85rem;
+    margin-top: 8px;
+  }
+  
+  /* Links */
+  .links-grid {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 30px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    transition: var(--transition);
+  }
+  
+  .link-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .link-icon {
+    font-size: 1.8rem;
+  }
+  
+  .link-text {
+    font-weight: 600;
+    color: var(--gray-800);
+  }
+  
+  /* CTA */
+  .cta-section {
+    background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
+    padding: 80px 0;
+    margin-top: 60px;
+  }
+  
+  .cta-content {
+    text-align: center;
+  }
+  
+  .cta-content h2 {
+    color: var(--white);
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+  }
+  
+  .cta-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .cta-content .btn-primary {
+    background: var(--white);
+    color: var(--green-primary);
+  }
+</style>
