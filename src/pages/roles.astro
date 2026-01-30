@@ -1,0 +1,503 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fetchFromSanity, formatYear } from '../lib/sanity.js';
+
+const base = import.meta.env.BASE_URL || '';
+
+// Fetch all roles with defensive patterns
+const roles = await fetchFromSanity(
+  `*[_type == "role"] | order(current desc, startYear desc){
+    _id, title, organization, type, description, current, startYear, endYear, url
+  }`,
+  []
+) || [];
+
+// Filter out malformed roles (urls shouldn't be titles)
+const validRoles = (roles || []).filter((r: any) => 
+  r?.title && !r.title.startsWith('http')
+);
+
+// Group roles by type if available
+const rolesByType: Record<string, any[]> = {};
+const uncategorized: any[] = [];
+
+(validRoles || []).forEach((role: any) => {
+  const type = role?.type || null;
+  if (type) {
+    if (!rolesByType[type]) {
+      rolesByType[type] = [];
+    }
+    rolesByType[type].push(role);
+  } else {
+    uncategorized.push(role);
+  }
+});
+
+// Sort types alphabetically
+const sortedTypes = Object.keys(rolesByType).sort();
+
+// Calculate stats
+const currentRoles = (validRoles || []).filter((r: any) => r?.current);
+const pastRoles = (validRoles || []).filter((r: any) => !r?.current);
+---
+
+<Layout title="Roles & Positions - Paul Chatterton">
+  <!-- Hero -->
+  <section class="roles-hero">
+    <div class="container">
+      <h1>Roles & <span class="text-accent">Positions</span></h1>
+      <p class="hero-subtitle">
+        My work spans academia, activism, and community leadership. Here's an overview of my current and past positions.
+      </p>
+      <div class="role-stats">
+        <div class="stat">
+          <span class="stat-number">{validRoles?.length || 0}</span>
+          <span class="stat-label">Total Roles</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">{currentRoles?.length || 0}</span>
+          <span class="stat-label">Current</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">{pastRoles?.length || 0}</span>
+          <span class="stat-label">Past</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Current Roles Section -->
+  {(currentRoles?.length ?? 0) > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Current Positions</h2>
+          <p class="section-subtitle">Where I'm currently making an impact</p>
+        </div>
+        <div class="roles-grid roles-grid-featured">
+          {(currentRoles || []).map((role: any) => (
+            <div class="role-card role-card-current">
+              <div class="role-badge">Current</div>
+              <h3 class="role-title">{role?.title || 'Position'}</h3>
+              {role?.organization && (
+                <p class="role-org">{role.organization}</p>
+              )}
+              {role?.type && (
+                <span class="role-type-tag">{role.type}</span>
+              )}
+              {role?.description && (
+                <p class="role-description">{role.description}</p>
+              )}
+              <div class="role-meta">
+                {role?.startYear && (
+                  <span class="role-years">
+                    Since {formatYear(role.startYear)}
+                  </span>
+                )}
+                {role?.url && (
+                  <a href={role.url} target="_blank" rel="noopener" class="role-link">
+                    Learn more →
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Roles by Type -->
+  {sortedTypes.length > 0 && sortedTypes.map((type) => {
+    const typeRoles = rolesByType[type] || [];
+    const pastTypeRoles = typeRoles.filter((r: any) => !r?.current);
+    
+    return pastTypeRoles.length > 0 ? (
+      <section class="section section-alt">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">{type}</h2>
+          </div>
+          <div class="roles-grid">
+            {pastTypeRoles.map((role: any) => (
+              <div class="role-card">
+                <h3 class="role-title">{role?.title || 'Position'}</h3>
+                {role?.organization && (
+                  <p class="role-org">{role.organization}</p>
+                )}
+                {role?.description && (
+                  <p class="role-description">{role.description}</p>
+                )}
+                <div class="role-meta">
+                  {(role?.startYear || role?.endYear) && (
+                    <span class="role-years">
+                      {role?.startYear ? formatYear(role.startYear) : '?'} – {role?.endYear ? formatYear(role.endYear) : 'Present'}
+                    </span>
+                  )}
+                  {role?.url && (
+                    <a href={role.url} target="_blank" rel="noopener" class="role-link">
+                      Learn more →
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null;
+  })}
+
+  <!-- Uncategorized Roles -->
+  {(uncategorized?.length ?? 0) > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Other Positions</h2>
+        </div>
+        <div class="roles-grid">
+          {(uncategorized || [])
+            .filter((r: any) => !r?.current)
+            .map((role: any) => (
+              <div class="role-card">
+                <h3 class="role-title">{role?.title || 'Position'}</h3>
+                {role?.organization && (
+                  <p class="role-org">{role.organization}</p>
+                )}
+                {role?.description && (
+                  <p class="role-description">{role.description}</p>
+                )}
+                <div class="role-meta">
+                  {(role?.startYear || role?.endYear) && (
+                    <span class="role-years">
+                      {role?.startYear ? formatYear(role.startYear) : '?'} – {role?.endYear ? formatYear(role.endYear) : 'Present'}
+                    </span>
+                  )}
+                  {role?.url && (
+                    <a href={role.url} target="_blank" rel="noopener" class="role-link">
+                      Learn more →
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- All Roles List (if no grouping) -->
+  {sortedTypes.length === 0 && (uncategorized?.length ?? 0) === 0 && (validRoles?.length ?? 0) > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">All Positions</h2>
+        </div>
+        <div class="roles-grid">
+          {(validRoles || []).map((role: any) => (
+            <div class={`role-card ${role?.current ? 'role-card-current' : ''}`}>
+              {role?.current && <div class="role-badge">Current</div>}
+              <h3 class="role-title">{role?.title || 'Position'}</h3>
+              {role?.organization && (
+                <p class="role-org">{role.organization}</p>
+              )}
+              {role?.type && (
+                <span class="role-type-tag">{role.type}</span>
+              )}
+              {role?.description && (
+                <p class="role-description">{role.description}</p>
+              )}
+              <div class="role-meta">
+                {(role?.startYear || role?.endYear) && (
+                  <span class="role-years">
+                    {role?.startYear ? formatYear(role.startYear) : '?'} – {role?.current ? 'Present' : (role?.endYear ? formatYear(role.endYear) : '?')}
+                  </span>
+                )}
+                {role?.url && (
+                  <a href={role.url} target="_blank" rel="noopener" class="role-link">
+                    Learn more →
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Empty state -->
+  {(validRoles?.length ?? 0) === 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="empty-state">
+          <span class="empty-icon">📋</span>
+          <h3>No roles found</h3>
+          <p>Role information is being updated. Please check back soon.</p>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Interested in Collaboration?</h2>
+        <p>I'm always open to new partnerships, advisory roles, and collaborative research opportunities.</p>
+        <a href={`${base}/collaborate`} class="btn btn-primary">Get in Touch</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* Hero */
+  .roles-hero {
+    background: linear-gradient(135deg, var(--green-light) 0%, var(--white) 100%);
+    padding: 100px 0 80px;
+    text-align: center;
+  }
+
+  .roles-hero h1 {
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    margin-bottom: 20px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+    color: var(--gray-600);
+    max-width: 600px;
+    margin: 0 auto 40px;
+    line-height: 1.8;
+  }
+
+  .role-stats {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--green-primary);
+    font-family: 'Playfair Display', serif;
+  }
+
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Roles Grid */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .roles-grid-featured {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+
+  /* Role Card */
+  .role-card {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 16px;
+    border-left: 4px solid var(--green-primary);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: var(--transition);
+    position: relative;
+  }
+
+  .role-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .role-card-current {
+    background: linear-gradient(135deg, var(--white) 0%, var(--green-light) 100%);
+    border-left-width: 6px;
+  }
+
+  .role-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--green-primary);
+    color: var(--white);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .role-title {
+    font-size: 1.2rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 8px;
+    padding-right: 70px;
+  }
+
+  .role-card:not(.role-card-current) .role-title {
+    padding-right: 0;
+  }
+
+  .role-org {
+    color: var(--green-primary);
+    font-weight: 500;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .role-type-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--green-light);
+    color: var(--green-primary);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+
+  .role-description {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+
+  .role-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .role-years {
+    color: var(--gray-500);
+    font-size: 0.85rem;
+  }
+
+  .role-link {
+    color: var(--green-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .role-link:hover {
+    color: var(--green-dark);
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .empty-state h3 {
+    font-size: 1.5rem;
+    color: var(--gray-800);
+    margin-bottom: 10px;
+  }
+
+  .empty-state p {
+    color: var(--gray-600);
+  }
+
+  /* CTA */
+  .cta-section {
+    background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
+    padding: 80px 0;
+    margin-top: 60px;
+  }
+
+  .cta-content {
+    text-align: center;
+  }
+
+  .cta-content h2 {
+    color: var(--white);
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+  }
+
+  .cta-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cta-content .btn-primary {
+    background: var(--white);
+    color: var(--green-primary);
+  }
+
+  .cta-content .btn-primary:hover {
+    background: var(--gray-100);
+    transform: translateY(-2px);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .roles-grid,
+    .roles-grid-featured {
+      grid-template-columns: 1fr;
+    }
+
+    .role-stats {
+      gap: 30px;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+    }
+
+    .role-card {
+      padding: 24px;
+    }
+
+    .role-title {
+      padding-right: 0;
+    }
+
+    .role-badge {
+      position: relative;
+      top: auto;
+      right: auto;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+  }
+</style>
