@@ -4,10 +4,10 @@ import { fetchFromSanity, truncateText } from '../lib/sanity.js';
 
 const base = import.meta.env.BASE_URL || '';
 
-// Fetch data with defensive patterns
+// Fetch data with defensive patterns - including externalLink for clickable projects
 const projects = await fetchFromSanity(
   `*[_type == "project"] | order(_createdAt desc)[0..8]{
-    _id, title, description,
+    _id, title, description, externalLink, impact, projectRole,
     "slug": slug.current,
     "imageUrl": mainImage.asset->url
   }`,
@@ -29,24 +29,59 @@ const media = await fetchFromSanity(
   []
 ) || [];
 
-// Featured projects - manually selected with fallback content
-const featuredProjects = [
-  {
-    title: 'LILAC Co-Housing',
-    description: 'A pioneering co-housing community of 20 households in Leeds using straw-bale construction and mutual home ownership. A living example of how we can build homes differently.',
-    icon: '🏠'
-  },
-  {
-    title: 'Climate Action Leeds',
-    description: 'City-wide mobilization through a hub and spoke model, empowering communities to reach zero carbon by the 2030s. Grassroots climate action at scale.',
-    icon: '🌍'
-  },
-  {
-    title: 'Remaking Places',
-    description: 'An interdisciplinary research network and creative toolkit helping communities reimagine and transform their neighbourhoods for a sustainable future.',
-    icon: '🗺️'
+// Featured projects - fetch from Sanity with fallback to hardcoded content
+const sanityFeaturedProjects = await fetchFromSanity(
+  `*[_type == "project" && (title match "LILAC" || title match "Climate Action" || title match "Remaking Places")] | order(_createdAt asc){
+    _id, title, description, externalLink, impact, projectRole,
+    "slug": slug.current,
+    "imageUrl": mainImage.asset->url
+  }`,
+  []
+) || [];
+
+// Fallback icons for projects
+const projectIcons: Record<string, string> = {
+  'LILAC': '🏠',
+  'Climate': '🌍',
+  'Remaking': '🗺️'
+};
+
+const getIcon = (title: string) => {
+  for (const [key, icon] of Object.entries(projectIcons)) {
+    if (title?.includes(key)) return icon;
   }
-];
+  return '🎯';
+};
+
+// Use Sanity data if available, otherwise fall back to hardcoded
+const featuredProjects = sanityFeaturedProjects.length > 0 
+  ? sanityFeaturedProjects.map(p => ({
+      ...p,
+      icon: getIcon(p.title || '')
+    }))
+  : [
+      {
+        title: 'LILAC Co-Housing',
+        description: 'A pioneering co-housing community of 20 households in Leeds using straw-bale construction and mutual home ownership.',
+        icon: '🏠',
+        externalLink: null,
+        imageUrl: null
+      },
+      {
+        title: 'Climate Action Leeds',
+        description: 'City-wide mobilization empowering communities to reach zero carbon by the 2030s.',
+        icon: '🌍',
+        externalLink: null,
+        imageUrl: null
+      },
+      {
+        title: 'Remaking Places',
+        description: 'An interdisciplinary research network helping communities reimagine their neighbourhoods.',
+        icon: '🗺️',
+        externalLink: null,
+        imageUrl: null
+      }
+    ];
 ---
 
 <Layout title="Paul Chatterton - Demanding the Impossible">
@@ -84,13 +119,30 @@ const featuredProjects = [
         <p class="section-subtitle">Real-world initiatives that demonstrate another way is possible</p>
       </div>
       <div class="grid-3">
-        {featuredProjects.map((project) => (
-          <div class="featured-card">
-            <span class="featured-icon">{project.icon}</span>
-            <h3 class="featured-title">{project.title}</h3>
-            <p class="featured-desc">{project.description}</p>
-          </div>
-        ))}
+        {featuredProjects.map((project) => {
+          const projectLink = project?.externalLink;
+          return (
+            <a 
+              href={projectLink || `${base}/work`} 
+              class={`featured-card ${projectLink ? 'clickable' : ''}`}
+              target={projectLink ? '_blank' : '_self'}
+              rel={projectLink ? 'noopener noreferrer' : undefined}
+            >
+              {project?.imageUrl ? (
+                <div class="featured-image">
+                  <img src={project.imageUrl} alt={project?.title || 'Project'} loading="lazy" />
+                </div>
+              ) : (
+                <span class="featured-icon">{project.icon}</span>
+              )}
+              <h3 class="featured-title">{project.title}</h3>
+              <p class="featured-desc">{truncateText(project.description || '', 120)}</p>
+              {projectLink && (
+                <span class="featured-link">Visit project →</span>
+              )}
+            </a>
+          );
+        })}
       </div>
       <div class="section-cta">
         <a href={`${base}/work`} class="btn btn-outline">View All Projects →</a>
@@ -264,11 +316,42 @@ const featuredProjects = [
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
     transition: var(--transition);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
   .featured-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+  }
+  
+  .featured-card.clickable {
+    cursor: pointer;
+  }
+  
+  .featured-card.clickable:hover .featured-link {
+    text-decoration: underline;
+  }
+  
+  .featured-image {
+    margin: -40px -30px 20px -30px;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    width: calc(100% + 60px);
+    height: 160px;
+  }
+  
+  .featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .featured-card:hover .featured-image img {
+    transform: scale(1.05);
   }
   
   .featured-icon {
@@ -287,6 +370,13 @@ const featuredProjects = [
     color: var(--gray-600);
     font-size: 0.95rem;
     line-height: 1.7;
+  }
+  
+  .featured-link {
+    color: var(--green-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: 15px;
   }
   
   .section-cta {

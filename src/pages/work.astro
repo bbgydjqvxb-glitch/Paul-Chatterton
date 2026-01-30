@@ -7,7 +7,7 @@ const base = import.meta.env.BASE_URL || '';
 // Fetch all data with defensive patterns
 const projects = await fetchFromSanity(
   `*[_type == "project"]{
-    _id, title, description, status, year, url, themes,
+    _id, title, description, status, year, externalLink, themes, impact, projectRole,
     "slug": slug.current,
     "imageUrl": mainImage.asset->url
   }`,
@@ -72,18 +72,39 @@ const decades = Object.keys(pubsByDecade).sort().reverse();
   <section id="projects" class="section tab-content active">
     <div class="container">
       <div class="grid-3">
-        {(validProjects || []).map((project) => (
-          <div class="project-card">
-            <div class="project-icon">🎯</div>
-            <h3 class="project-title">{project?.title || 'Untitled Project'}</h3>
-            <p class="project-desc">{truncateText(project?.description || '', 150) || 'Project details coming soon.'}</p>
-            {project?.url && (
-              <a href={project.url} class="project-link" target="_blank" rel="noopener">
-                Learn more →
-              </a>
-            )}
-          </div>
-        ))}
+        {(validProjects || []).map((project) => {
+          const projectLink = project?.externalLink;
+          const CardWrapper = projectLink ? 'a' : 'div';
+          return (
+            <a 
+              href={projectLink || '#'} 
+              class={`project-card ${projectLink ? 'clickable' : ''}`}
+              target={projectLink ? '_blank' : undefined}
+              rel={projectLink ? 'noopener noreferrer' : undefined}
+            >
+              {project?.imageUrl ? (
+                <div class="project-image">
+                  <img src={project.imageUrl} alt={project?.title || 'Project'} loading="lazy" />
+                </div>
+              ) : (
+                <div class="project-icon">🎯</div>
+              )}
+              <h3 class="project-title">{project?.title || 'Untitled Project'}</h3>
+              {project?.projectRole && (
+                <span class="project-role">{project.projectRole}</span>
+              )}
+              <p class="project-desc">{truncateText(project?.description || '', 150) || 'Project details coming soon.'}</p>
+              {project?.impact && (
+                <p class="project-impact"><strong>Impact:</strong> {truncateText(project.impact, 100)}</p>
+              )}
+              {projectLink && (
+                <span class="project-link">
+                  Learn more →
+                </span>
+              )}
+            </a>
+          );
+        })}
       </div>
       {(validProjects?.length ?? 0) === 0 && (
         <p class="empty-state">Projects are being added. Check back soon!</p>
@@ -268,6 +289,58 @@ const decades = Object.keys(pubsByDecade).sort().reverse();
   .project-link {
     font-weight: 600;
     font-size: 0.9rem;
+    color: var(--green-primary);
+    margin-top: auto;
+  }
+  
+  .project-card.clickable {
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .project-card.clickable:hover .project-link {
+    text-decoration: underline;
+  }
+  
+  .project-image {
+    margin: -30px -30px 20px -30px;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    height: 180px;
+  }
+  
+  .project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .project-card:hover .project-image img {
+    transform: scale(1.05);
+  }
+  
+  .project-role {
+    display: inline-block;
+    background: var(--green-light);
+    color: var(--green-dark);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .project-impact {
+    color: var(--gray-600);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    font-style: italic;
+    margin-bottom: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--gray-200);
   }
   
   /* Publications */
