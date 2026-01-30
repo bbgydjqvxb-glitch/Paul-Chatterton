@@ -102,59 +102,24 @@ const collaborators = [
   <!-- Contact Section -->
   <section class="section contact-section">
     <div class="container">
-      <div class="contact-grid">
-        <div class="contact-info">
-          <h2>Get in Touch</h2>
-          <p>I read every message and respond to serious inquiries about potential collaboration. Please be specific about what you're looking for.</p>
-          
-          <div class="contact-methods">
-            <a href="mailto:p.chatterton@leeds.ac.uk" class="contact-method">
-              <span class="method-icon">📧</span>
-              <span class="method-text">
-                <strong>Email</strong>
-                <span>p.chatterton@leeds.ac.uk</span>
-              </span>
-            </a>
-            <a href="https://environment.leeds.ac.uk/geography/staff/1015/professor-paul-chatterton" target="_blank" rel="noopener" class="contact-method">
-              <span class="method-icon">🎓</span>
-              <span class="method-text">
-                <strong>University Profile</strong>
-                <span>Leeds Geography Department</span>
-              </span>
-            </a>
-          </div>
+      <div class="contact-centered">
+        <h2>Get in Touch</h2>
+        <p class="contact-intro">I read every message and respond to serious inquiries about potential collaboration. Please be specific about what you're looking for.</p>
+        
+        <div class="email-cta">
+          <span class="email-icon">📧</span>
+          <a href="mailto:p.chatterton@leeds.ac.uk" class="email-address">p.chatterton@leeds.ac.uk</a>
+          <p class="email-hint">Click to open your email client</p>
         </div>
         
-        <div class="contact-form-wrapper">
-          <form class="contact-form" action="mailto:p.chatterton@leeds.ac.uk" method="post" enctype="text/plain">
-            <div class="form-group">
-              <label for="name">Your Name</label>
-              <input type="text" id="name" name="name" required placeholder="Jane Smith" />
-            </div>
-            <div class="form-group">
-              <label for="email">Email Address</label>
-              <input type="email" id="email" name="email" required placeholder="jane@example.com" />
-            </div>
-            <div class="form-group">
-              <label for="type">I am a...</label>
-              <select id="type" name="type">
-                <option value="">Select one</option>
-                <option value="researcher">Researcher / Academic</option>
-                <option value="policy">Policy Maker</option>
-                <option value="media">Journalist / Media</option>
-                <option value="activist">Activist / Community Member</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="message">How can we work together?</label>
-              <textarea id="message" name="message" rows="5" required placeholder="Tell me about your project or idea..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary btn-full">
-              Send Message
-            </button>
-            <p class="form-note">This will open your email client with a pre-filled message.</p>
-          </form>
+        <div class="contact-methods-row">
+          <a href="https://environment.leeds.ac.uk/geography/staff/1015/professor-paul-chatterton" target="_blank" rel="noopener" class="contact-method">
+            <span class="method-icon">🎓</span>
+            <span class="method-text">
+              <strong>University Profile</strong>
+              <span>Leeds Geography Department</span>
+            </span>
+          </a>
         </div>
       </div>
     </div>
@@ -284,42 +249,75 @@ const collaborators = [
     background: var(--gray-50);
   }
   
-  .contact-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 60px;
-    align-items: start;
+  .contact-centered {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
   }
   
-  .contact-info h2 {
-    font-size: 2rem;
+  .contact-centered h2 {
+    font-size: 2.2rem;
     margin-bottom: 15px;
   }
   
-  .contact-info > p {
+  .contact-intro {
     color: var(--gray-600);
     line-height: 1.7;
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+  }
+  
+  .email-cta {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
     margin-bottom: 30px;
   }
   
-  .contact-methods {
+  .email-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 15px;
+  }
+  
+  .email-address {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--green-primary);
+    display: block;
+    margin-bottom: 10px;
+    transition: var(--transition);
+  }
+  
+  .email-address:hover {
+    color: var(--green-dark);
+    text-decoration: underline;
+  }
+  
+  .email-hint {
+    color: var(--gray-500);
+    font-size: 0.9rem;
+  }
+  
+  .contact-methods-row {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    justify-content: center;
+    gap: 20px;
   }
   
   .contact-method {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 20px;
+    padding: 20px 30px;
     background: var(--white);
     border-radius: 12px;
     transition: var(--transition);
   }
   
   .contact-method:hover {
-    transform: translateX(5px);
+    transform: translateY(-3px);
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
   }
   
@@ -330,6 +328,7 @@ const collaborators = [
   .method-text {
     display: flex;
     flex-direction: column;
+    text-align: left;
   }
   
   .method-text strong {
@@ -340,67 +339,6 @@ const collaborators = [
   .method-text span {
     color: var(--gray-500);
     font-size: 0.9rem;
-  }
-  
-  /* Form */
-  .contact-form-wrapper {
-    background: var(--white);
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-group label {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: var(--gray-700);
-  }
-  
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid var(--gray-200);
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: var(--transition);
-    font-family: inherit;
-  }
-  
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: var(--green-primary);
-  }
-  
-  .form-group textarea {
-    resize: vertical;
-    min-height: 120px;
-  }
-  
-  .btn-full {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .form-note {
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--gray-500);
-    margin-top: 15px;
-  }
-  
-  @media (max-width: 800px) {
-    .contact-grid {
-      grid-template-columns: 1fr;
-    }
   }
   
   /* Quote */
