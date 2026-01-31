@@ -6,7 +6,7 @@ const base = import.meta.env.BASE_URL || '';
 
 // Fetch all data with defensive patterns
 const projects = await fetchFromSanity(
-  `*[_type == "project"]{
+  `*[_type == "project"] | order(coalesce(displayOrder, 999) asc){
     _id, title, description, status, year, externalLink, themes, impact, projectRole,
     "slug": slug.current,
     "imageUrl": mainImage.asset->url
@@ -23,7 +23,7 @@ const publications = await fetchFromSanity(
 ) || [];
 
 const media = await fetchFromSanity(
-  `*[_type == "media"]{
+  `*[_type == "media"] | order(coalesce(displayOrder, 999) asc){
     _id, title, outlet, date, description,
     "url": link,
     "mediaType": type,
@@ -52,7 +52,7 @@ const pubsByDecade = (publications || []).reduce((acc, pub) => {
 const decades = Object.keys(pubsByDecade).sort().reverse();
 ---
 
-<Layout title="Work & Impact - Paul Chatterton">
+<Layout title="Impact - Paul Chatterton">
   <!-- Page Header -->
   <section class="page-header">
     <div class="container">

@@ -6,7 +6,7 @@ const base = import.meta.env.BASE_URL || '';
 
 // Fetch data with defensive patterns - including externalLink for clickable projects
 const projects = await fetchFromSanity(
-  `*[_type == "project"] | order(_createdAt desc)[0..8]{
+  `*[_type == "project"] | order(coalesce(displayOrder, 999) asc, _createdAt desc)[0..8]{
     _id, title, description, externalLink, impact, projectRole,
     "slug": slug.current,
     "imageUrl": mainImage.asset->url
@@ -23,7 +23,7 @@ const publications = await fetchFromSanity(
 ) || [];
 
 const media = await fetchFromSanity(
-  `*[_type == "media"][0..5]{
+  `*[_type == "media"] | order(coalesce(displayOrder, 999) asc)[0..5]{
     _id, title, outlet, url, mediaType
   }`,
   []
@@ -31,7 +31,7 @@ const media = await fetchFromSanity(
 
 // Featured projects - fetch from Sanity with fallback to hardcoded content
 const sanityFeaturedProjects = await fetchFromSanity(
-  `*[_type == "project" && (title match "LILAC" || title match "Climate Action" || title match "Remaking Places")] | order(_createdAt asc){
+  `*[_type == "project" && (title match "LILAC" || title match "Climate Action" || title match "Remaking Places")] | order(coalesce(displayOrder, 999) asc)[0..2]{
     _id, title, description, externalLink, impact, projectRole,
     "slug": slug.current,
     "imageUrl": mainImage.asset->url
@@ -119,7 +119,7 @@ const featuredProjects = sanityFeaturedProjects.length > 0
         <p class="section-subtitle">Real-world initiatives that demonstrate another way is possible</p>
       </div>
       <div class="grid-3">
-        {featuredProjects.map((project) => {
+        {featuredProjects.slice(0, 3).map((project) => {
           const projectLink = project?.externalLink;
           return (
             <a 
@@ -185,7 +185,7 @@ const featuredProjects = sanityFeaturedProjects.length > 0
           <p class="section-subtitle">Sharing ideas beyond the academy</p>
         </div>
         <div class="grid-3">
-          {(media || []).slice(0, 6).map((item) => (
+          {(media || []).slice(0, 3).map((item) => (
             <div class="card">
               <div class="card-body">
                 <span class="media-icon">🎙️</span>
