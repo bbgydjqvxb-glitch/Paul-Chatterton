@@ -30,7 +30,8 @@ if (sanityFeaturedProjects.length === 0) {
 let publications = await fetchFromSanity(
   `*[_type == "publication" && featured == true] | order(year desc)[0..5]{
     _id, title, year, publicationType,
-    "slug": slug.current
+    "slug": slug.current,
+    "imageUrl": coverImage.asset->url
   }`,
   []
 ) || [];
@@ -40,7 +41,8 @@ if (publications.length === 0) {
   publications = await fetchFromSanity(
     `*[_type == "publication"] | order(year desc)[0..5]{
       _id, title, year, publicationType,
-      "slug": slug.current
+      "slug": slug.current,
+      "imageUrl": coverImage.asset->url
     }`,
     []
   ) || [];
@@ -188,6 +190,11 @@ const featuredProjects = sanityFeaturedProjects.length > 0
         <div class="pub-list">
           {(publications || []).slice(0, 5).map((pub) => (
             <div class="pub-item">
+              {pub?.imageUrl && (
+                <div class="pub-image">
+                  <img src={pub.imageUrl} alt={pub?.title || 'Publication'} loading="lazy" />
+                </div>
+              )}
               <div class="pub-year">{pub?.year || '—'}</div>
               <div class="pub-content">
                 <h3 class="pub-title">{pub?.title || 'Untitled'}</h3>
@@ -439,13 +446,27 @@ const featuredProjects = sanityFeaturedProjects.length > 0
     border-radius: 8px;
   }
   
+  .pub-image {
+    width: 60px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .pub-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   .pub-year {
     font-size: 1rem;
     font-weight: 600;
     color: var(--green-primary);
     min-width: 50px;
   }
-  
+
   .pub-title {
     font-size: 1.1rem;
     font-weight: 500;
