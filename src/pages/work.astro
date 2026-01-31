@@ -27,7 +27,7 @@ const media = await fetchFromSanity(
     _id, title, outlet, date, description,
     "url": link,
     "mediaType": type,
-    "imageUrl": image.asset->url
+    "imageUrl": thumbnail.asset->url
   }`,
   []
 ) || [];
@@ -165,11 +165,17 @@ const decades = Object.keys(pubsByDecade).sort().reverse();
               target="_blank"
               rel="noopener noreferrer"
             >
-              <div class="media-icon">
-                {item?.mediaType === 'podcast' ? '🎙️' :
-                 item?.mediaType === 'video' ? '🎬' :
-                 item?.mediaType === 'article' ? '📰' : '📺'}
-              </div>
+              {item?.imageUrl ? (
+                <div class="media-image">
+                  <img src={item.imageUrl} alt={item?.title || 'Media'} loading="lazy" />
+                </div>
+              ) : (
+                <div class="media-icon">
+                  {item?.mediaType === 'Podcast' ? '🎙️' :
+                   item?.mediaType === 'Video' ? '🎬' :
+                   item?.mediaType === 'News Feature' ? '📰' : '📺'}
+                </div>
+              )}
               <h3 class="media-title">{item?.title || 'Untitled'}</h3>
               {item?.outlet && <p class="media-outlet">{item.outlet}</p>}
               {item?.description && <p class="media-desc">{truncateText(item.description, 100)}</p>}
@@ -179,11 +185,17 @@ const decades = Object.keys(pubsByDecade).sort().reverse();
             </a>
           ) : (
             <div class="media-card">
-              <div class="media-icon">
-                {item?.mediaType === 'podcast' ? '🎙️' :
-                 item?.mediaType === 'video' ? '🎬' :
-                 item?.mediaType === 'article' ? '📰' : '📺'}
-              </div>
+              {item?.imageUrl ? (
+                <div class="media-image">
+                  <img src={item.imageUrl} alt={item?.title || 'Media'} loading="lazy" />
+                </div>
+              ) : (
+                <div class="media-icon">
+                  {item?.mediaType === 'Podcast' ? '🎙️' :
+                   item?.mediaType === 'Video' ? '🎬' :
+                   item?.mediaType === 'News Feature' ? '📰' : '📺'}
+                </div>
+              )}
               <h3 class="media-title">{item?.title || 'Untitled'}</h3>
               {item?.outlet && <p class="media-outlet">{item.outlet}</p>}
               {item?.description && <p class="media-desc">{truncateText(item.description, 100)}</p>}
@@ -460,6 +472,24 @@ const decades = Object.keys(pubsByDecade).sort().reverse();
     text-decoration: underline;
   }
   
+  .media-image {
+    margin: -30px -30px 20px -30px;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    height: 180px;
+  }
+
+  .media-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .media-card:hover .media-image img {
+    transform: scale(1.05);
+  }
+
   .media-icon {
     font-size: 2.5rem;
     margin-bottom: 15px;

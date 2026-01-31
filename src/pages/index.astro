@@ -24,7 +24,8 @@ const publications = await fetchFromSanity(
 
 const media = await fetchFromSanity(
   `*[_type == "media"] | order(coalesce(displayOrder, 999) asc)[0..5]{
-    _id, title, outlet, url, mediaType
+    _id, title, outlet, url, mediaType,
+    "imageUrl": thumbnail.asset->url
   }`,
   []
 ) || [];
@@ -187,8 +188,13 @@ const featuredProjects = sanityFeaturedProjects.length > 0
         <div class="grid-3">
           {(media || []).slice(0, 3).map((item) => (
             <div class="card">
+              {item?.imageUrl && (
+                <div class="card-image">
+                  <img src={item.imageUrl} alt={item?.title || 'Media'} loading="lazy" />
+                </div>
+              )}
               <div class="card-body">
-                <span class="media-icon">🎙️</span>
+                {!item?.imageUrl && <span class="media-icon">🎙️</span>}
                 <h3 class="card-title">{item?.title || 'Untitled'}</h3>
                 {item?.outlet && <p class="card-text">{item.outlet}</p>}
               </div>
@@ -428,7 +434,26 @@ const featuredProjects = sanityFeaturedProjects.length > 0
     display: block;
     margin-bottom: 15px;
   }
-  
+
+  /* Card image */
+  .card-image {
+    margin: -25px -25px 20px -25px;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    height: 150px;
+  }
+
+  .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .card:hover .card-image img {
+    transform: scale(1.05);
+  }
+
   /* CTA Section */
   .cta-section {
     background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
